@@ -22,9 +22,7 @@ vocab_path = os.path.join(ROOT_DIR, "saved_vocabulary", "vocab_coco.file")
 weights_path1 = os.path.join(
     ROOT_DIR, "saved_models", "image_captioning_coco_weights.h5"
 )
-weights_path2 = os.path.join(
-    ROOT_DIR, "saved_models", "image_captioning_transformer_weights_2.h5"
-)
+weights_path2 = os.path.join(ROOT_DIR, "saved_models", "xception_model.h5")
 
 # Load the vocabulary file
 vocab = pickle.load(open(vocab_path, "rb"))

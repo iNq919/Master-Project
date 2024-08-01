@@ -1,0 +1,28 @@
+version: '3'
+
+services:
+  backend:
+    build:
+      context: ./flask-server/.
+    ports:
+      - "8501:8501" 
+    environment:
+      - FLASK_APP=api.py
+    volumes:
+      - ./flask-server
+    networks:
+      - app-network
+
+  frontend:
+    build:
+      context: ./client/.
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./client
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge

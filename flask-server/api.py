@@ -1,8 +1,9 @@
-from flask import Flask, request, jsonify, send_from_directory
+from flask import Flask, request, jsonify, send_from_directory, abort
 from flask_cors import CORS
 import os
 import requests
 from PIL import Image
+from werkzeug.utils import secure_filename
 from model import get_caption_model, generate_caption
 from translate import Translator
 import subprocess
@@ -13,6 +14,8 @@ CORS(app)
 
 # Constants
 UPLOAD_FOLDER = "uploads"
+ALLOWED_EXTENSIONS = {"png", "jpg", "jpeg"}
+MAX_CONTENT_LENGTH = 16 * 1024 * 1024  # 16 MB
 RETRAIN_MODEL_SCRIPT = os.path.join(os.path.dirname(__file__), "retrain_model.py")
 USER_FEEDBACK_FILE = os.path.join(os.path.dirname(__file__), "user_feedback.csv")
 
@@ -21,9 +24,15 @@ if not os.path.exists(UPLOAD_FOLDER):
     os.makedirs(UPLOAD_FOLDER)
 
 app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
+app.config["MAX_CONTENT_LENGTH"] = MAX_CONTENT_LENGTH
 
 # Initialize translator
-translator = Translator(to_lang="pl")
+default_language = "pl"
+translator = Translator(to_lang=default_language)
+
+
+def allowed_file(filename):
+    return "." in filename and filename.rsplit(".", 1)[1].lower() in ALLOWED_EXTENSIONS
 
 
 def generate_unique_captions(image_path, previous_captions, model):
@@ -36,7 +45,7 @@ def generate_unique_captions(image_path, previous_captions, model):
 
 
 def save_image(file):
-    filename = file.filename
+    filename = secure_filename(file.filename)
     file_path = os.path.join(app.config["UPLOAD_FOLDER"], filename)
     file.save(file_path)
     return filename  # Return the filename, not the full path
@@ -50,6 +59,8 @@ def upload_image():
     file = request.files["file"]
     if file.filename == "":
         return jsonify({"status": "error", "message": "No selected file"}), 400
+    if not allowed_file(file.filename):
+        return jsonify({"status": "error", "message": "File type not allowed"}), 400
 
     filename = save_image(file)
     image_path = os.path.join(app.config["UPLOAD_FOLDER"], filename)
@@ -65,8 +76,12 @@ def fetch_image():
         return jsonify({"status": "error", "message": "No URL provided"}), 400
 
     try:
-        img = Image.open(requests.get(url, stream=True).raw).convert("RGB")
-        filename = os.path.basename(url)
+        response = requests.get(url, stream=True)
+        response.raise_for_status()
+        img = Image.open(response.raw).convert("RGB")
+        filename = secure_filename(os.path.basename(url))
+        if not allowed_file(filename):
+            return jsonify({"status": "error", "message": "File type not allowed"}), 400
         image_path = os.path.join(app.config["UPLOAD_FOLDER"], filename)
         img.save(image_path)
     except Exception as e:
@@ -129,10 +144,40 @@ def confirm_choice():
         ), 500
 
 
+@app.route("/translate", methods=["POST"])
+def translate_captions():
+    data = request.json
+    captions = data.get("captions")
+    language = data.get("language", default_language)
+
+    if not captions or not language:
+        return jsonify(
+            {
+                "status": "error",
+                "message": "Missing required data: 'captions' and/or 'language'",
+            }
+        ), 400
+
+    try:
+        translated_captions = [
+            Translator(to_lang=language).translate(caption) for caption in captions
+        ]
+        return jsonify(
+            {"status": "success", "translated_captions": translated_captions}
+        )
+    except Exception as e:
+        return jsonify({"status": "error", "message": str(e)}), 500
+
+
 @app.route("/uploads/<filename>")
 def serve_file(filename):
     return send_from_directory(app.config["UPLOAD_FOLDER"], filename)
 
 
+@app.errorhandler(413)
+def request_entity_too_large(error):
+    return jsonify({"status": "error", "message": "File too large"}), 413
+
+
 if __name__ == "__main__":
-    app.run(port=8501)
+    app.run(port=8501, host="0.0.0.0")

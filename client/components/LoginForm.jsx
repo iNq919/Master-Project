@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useState } from "react";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
@@ -38,7 +39,8 @@ export default function LoginForm() {
   };
 
   return (
-    <div className="grid place-items-center h-screen bg-gray-100">
+    <div className="flex flex-col justify-center items-center gap-y-10 h-screen bg-gray-100">
+           <Image src="/logo.png" alt="Logo" width={350} height={350} className="" />
       <Card className="p-8 max-w-sm w-full shadow-lg border border-gray-200">
         <h1 className="text-xl font-bold mb-6">Zaloguj się!</h1>
 

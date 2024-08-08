@@ -134,7 +134,7 @@ def confirm_choice():
         return jsonify(
             {
                 "status": "success",
-                "message": "The model has been updated based on your feedback!",
+                "message": "Model został zaktualizowany w oparciu o Twoją opinie!",
                 "output": result.stdout,
             }
         )

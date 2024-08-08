@@ -1,8 +1,12 @@
 "use client";
 
-import Link from "next/link";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Card } from "@/components/ui/card";
+import { Alert } from "@/components/ui/alert";
+import Link from "next/link";
 
 export default function RegisterForm() {
   const [name, setName] = useState("");
@@ -21,7 +25,7 @@ export default function RegisterForm() {
     }
 
     try {
-      const resUserExists = await fetch("api/userExists", {
+      const resUserExists = await fetch("/api/userExists", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -36,7 +40,7 @@ export default function RegisterForm() {
         return;
       }
 
-      const res = await fetch("api/register", {
+      const res = await fetch("/api/register", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -61,41 +65,45 @@ export default function RegisterForm() {
   };
 
   return (
-    <div className="grid place-items-center h-screen">
-      <div className="shadow-lg p-5 rounded-lg border-t-4 border-green-400">
-        <h1 className="text-xl font-bold my-4">Register</h1>
+    <div className="grid place-items-center h-screen bg-gray-100">
+      <Card className="p-8 max-w-sm w-full shadow-lg border border-gray-200">
+        <h1 className="text-xl font-bold mb-6">Zarejestruj się!</h1>
 
-        <form onSubmit={handleSubmit} className="flex flex-col gap-3">
-          <input
+        <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+          <Input
+            value={name}
             onChange={(e) => setName(e.target.value)}
             type="text"
-            placeholder="Full Name"
+            placeholder="Imię i nazwisko"
+            required
           />
-          <input
+          <Input
+            value={email}
             onChange={(e) => setEmail(e.target.value)}
-            type="text"
-            placeholder="Email"
+            type="email"
+            placeholder="E-Mail"
+            required
           />
-          <input
+          <Input
+            value={password}
             onChange={(e) => setPassword(e.target.value)}
             type="password"
-            placeholder="Password"
+            placeholder="Hasło"
+            required
           />
-          <button className="bg-green-600 text-white font-bold cursor-pointer px-6 py-2">
-            Register
-          </button>
-
+          <Button type="submit" className="bg-blue-600 text-white font-bold py-2">
+            Rejestracja
+          </Button>
           {error && (
-            <div className="bg-red-500 text-white w-fit text-sm py-1 px-3 rounded-md mt-2">
+            <Alert variant="error" className="mt-4">
               {error}
-            </div>
+            </Alert>
           )}
-
-          <Link className="text-sm mt-3 text-right" href={"/"}>
-            Already have an account? <span className="underline">Login</span>
+          <Link href="/" className="text-sm mt-3 text-right">
+          Masz już konto? <span className="underline">Zaloguj się!</span>
           </Link>
         </form>
-      </div>
+      </Card>
     </div>
   );
 }

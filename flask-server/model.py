@@ -7,7 +7,7 @@ import os
 
 # CONTANTS
 MAX_LENGTH = 40
-# VOCABULARY_SIZE = 10000
+VOCABULARY_SIZE = 10000
 BATCH_SIZE = 32
 BUFFER_SIZE = 1000
 EMBEDDING_DIM = 512
@@ -28,7 +28,7 @@ weights_path2 = os.path.join(ROOT_DIR, "saved_models", "xception_model.h5")
 vocab = pickle.load(open(vocab_path, "rb"))
 
 tokenizer = tf.keras.layers.TextVectorization(
-    # max_tokens=VOCABULARY_SIZE,
+    max_tokens=VOCABULARY_SIZE,
     standardize=None,
     output_sequence_length=MAX_LENGTH,
     vocabulary=vocab,

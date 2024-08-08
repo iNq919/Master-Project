@@ -31,7 +31,7 @@ const FileUpload = ({ onUpload }) => {
             />
           </svg>
           <p className="mb-2 text-sm text-gray-500 dark:text-gray-400">
-            <span className="font-semibold">Click to upload</span> or drag and drop
+            <span className="font-semibold">Kliknij, aby przesłać</span> lub przeciągnij i upuść
           </p>
           <p className="text-xs text-gray-500 dark:text-gray-400">
            PNG, JPG or JPEG (MAX. 5MB)

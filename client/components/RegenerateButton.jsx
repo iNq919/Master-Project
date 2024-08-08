@@ -15,7 +15,7 @@ const RegenerateButton = ({ imagePath, onRegenerate }) => {
     }
   };
 
-  return <button onClick={handleRegenerate}>Regenerate Captions</button>;
+  return <button onClick={handleRegenerate}>Nowe opisy</button>;
 };
 
 export default RegenerateButton;

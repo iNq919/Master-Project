@@ -1,22 +1,27 @@
 "use client";
 
-import { useState } from 'react';
-import FileUpload from '@/components/FileUpload';
-import UrlInput from '@/components/UrlInput';
-import Captions from '@/components/Captions';
+import { useState, useRef } from 'react';
 import axios from 'axios';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import UserInfo from '@/components/UserInfo';
+import { Button } from '@/components/ui/button';
+import FileUpload from '@/components/FileUpload';
+import Captions from '@/components/Captions';
+import Header from '@/components/Header';
+import UrlInput from '@/components/UrlInput';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 
-const Page = () => {
+export default function Page() {
   const [captions, setCaptions] = useState([]);
   const [selectedCaption, setSelectedCaption] = useState(null);
   const [imagePath, setImagePath] = useState("");
   const [imageSrc, setImageSrc] = useState("");
   const [language, setLanguage] = useState("pl");
+
+  const imageRef = useRef(null);
+  const captionsRef = useRef(null);
+  const selectRef = useRef(null);
 
   const handleResponse = (response, successMessage) => {
     if (response.data.status === "success") {
@@ -24,14 +29,26 @@ const Page = () => {
       setImagePath(response.data.image_path);
       setImageSrc(`${API_BASE_URL}/uploads/${response.data.image_path}`);
       toast.success(successMessage);
+
+      if (imageSrc) {
+        imageRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      } else {
+        captionsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
     } else {
       toast.error(response.data.message || "An error occurred.");
     }
   };
 
   const handleError = (error, errorMessage) => {
+    if (error.response) {
+      toast.error(`${error.response.data.message || errorMessage}: ${error.response.status}`);
+    } else if (error.request) {
+      toast.error("No response received from the server.");
+    } else {
+      toast.error(`Error: ${error.message}`);
+    }
     console.error(errorMessage, error);
-    toast.error(`${errorMessage}: ${error.message}`);
   };
 
   const handleUpload = (file) => {
@@ -41,7 +58,7 @@ const Page = () => {
     axios.post(`${API_BASE_URL}/upload`, formData, {
       headers: { "Content-Type": "multipart/form-data" },
     })
-    .then(response => handleResponse(response, "File uploaded and captions fetched successfully!"))
+    .then(response => handleResponse(response, "Plik przesłany i napisy wygenerowane pomyślnie!"))
     .catch(error => handleError(error, "Error uploading file"));
   };
 
@@ -62,6 +79,7 @@ const Page = () => {
         if (response.data.status === "success") {
           setCaptions(response.data.captions);
           toast.success("Captions regenerated successfully!");
+          captionsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
         } else {
           toast.error(response.data.message || "Error regenerating captions.");
         }
@@ -100,64 +118,79 @@ const Page = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 flex flex-col items-center p-4">
-      <UserInfo />
-      <div className="container mx-auto max-w-4xl bg-white p-6 rounded-lg shadow-md bg-gray-50 dark:bg-gray-700">
-        <h1 className="text-3xl font-bold mb-4 text-center text-white">Image Captioning App</h1>
-        <FileUpload onUpload={handleUpload} />
-        <UrlInput onFetch={handleFetch} />
-
-        {imageSrc && (
-          <div className="mt-4 text-center">
-            <h2 className="text-xl text-white font-semibold mb-2">Uploaded/Fetched Image:</h2>
-            <img
-              src={imageSrc}
-              alt="Uploaded or Fetched"
-              className="w-full max-w-md mx-auto rounded-md shadow-md"
-            />
-          </div>
-        )}
-
-        {captions.length > 0 && (
-          <div className="mt-4">
-            <h2 className="text-xl text-white font-semibold mb-2">Captions:</h2>
-            <Captions 
-              captions={captions} 
-              onSelect={index => setSelectedCaption(captions[index])} 
-              selectedCaptionIndex={captions.indexOf(selectedCaption)}
-            />
-            <div className="mt-4 flex items-center">
-              <button
-                onClick={handleTranslate}
-                className="mt-2 p-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition duration-300"
-              >
-                Translate to Polish
-              </button>
+    <div className="flex flex-col min-h-screen p-4 lg:p-6">
+      <Header />
+      <main className="flex-1">
+        <section className="w-full py-6 md:py-12 lg:py-6">
+          <div className="container px-4 md:px-6 space-y-10 max-w-7xl mx-auto border border-gray-100 rounded-md shadow-sm">
+            <div className="flex flex-col items-center justify-center space-y-4 text-center p-6 md:p-12 lg:p-12">
+              <div className="space-y-2">
+                <h1 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl">
+                  Generowanie opisów Twoich zdjęć
+                </h1>
+                <p className="max-w-[700px] text-muted-foreground md:text-xl">
+                  Prześlij obraz lub wprowadź adres URL obrazu i pozwól naszej sztucznej inteligencji wygenerować opisy.
+                </p>
+              </div>
+              <div className="flex flex-col gap-2 w-full max-w-md">
+                <FileUpload onUpload={handleUpload} />
+                <UrlInput onFetch={handleFetch} />
+              </div>
             </div>
-            <button
-                onClick={handleRegenerate}
-                className="mt-2 p-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition duration-300"
-              >
-                Regenerate Captions
-              </button>
-          </div>
-        )}
 
-        {selectedCaption && (
-          <div className="mt-4 text-center text-white">
-            <h2 className="text-xl font-semibold mb-2">Selected Caption:</h2>
-            <p className="mb-2">{selectedCaption}</p>
-            <button
-              onClick={handleConfirm}
-              className="mt-2 p-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition duration-300"
-            >
-              Confirm
-            </button>
+            {imageSrc && (
+              <div ref={imageRef} className="flex flex-col items-center justify-center space-y-4">
+                <img
+                  src={imageSrc}
+                  alt="Uploaded or Fetched"
+                  className="max-w-full rounded-md object-cover"
+                />
+              </div>
+            )}
+
+            {captions.length > 0 && (
+              <div ref={captionsRef} className="flex flex-col items-center justify-center ">
+                <h2 className="text-xl font-bold">Wygenerowane opisy</h2>
+                <Captions 
+                  captions={captions} 
+                  onSelect={index => setSelectedCaption(captions[index])} 
+                  selectedCaptionIndex={captions.indexOf(selectedCaption)}
+                />
+                <div className="flex flex-col md:flex-row items-center gap-4 m-4">
+                  <Button
+                    type="button"
+                    onClick={handleTranslate}
+                    className="inline-flex h-10 px-6 text-base font-medium rounded-md bg-primary text-primary-foreground shadow transition-colors hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-primary"
+                  >
+                    Tłumacz
+                  </Button>
+                  <Button
+                    type="button"
+                    onClick={handleRegenerate}
+                    className="inline-flex h-10 px-6 text-base font-medium rounded-md bg-primary text-primary-foreground shadow transition-colors hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-primary"
+                  >
+                    Nowe opisy
+                  </Button>
+                </div>
+              </div>
+            )}
+
+            {selectedCaption && (
+              <div ref={selectRef} className="flex flex-col items-center justify-center space-y-4 text-center py-6">
+                <h2 className="text-xl font-bold">Wybrany opis:</h2>
+                <p>{selectedCaption}</p>
+                <Button
+                  type="button"
+                  onClick={handleConfirm}
+                  className="inline-flex h-10 px-6 text-base font-medium rounded-md bg-primary text-primary-foreground shadow transition-colors hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-primary"
+                >
+                  Prześlij
+                </Button>
+              </div>
+            )}
           </div>
-        )}
-      </div>
+        </section>
+      </main>
     </div>
   );
-};
-
-export default Page;
+}

@@ -1,9 +1,13 @@
 "use client";
 
-import Link from "next/link";
 import { useState } from "react";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Card } from "@/components/ui/card";
+import Link from "next/link";
+import { Alert } from "@/components/ui/alert";
 
 export default function LoginForm() {
   const [email, setEmail] = useState("");
@@ -34,35 +38,38 @@ export default function LoginForm() {
   };
 
   return (
-    <div className="grid place-items-center h-screen">
-      <div className="shadow-lg p-5 rounded-lg border-t-4 border-green-400">
-        <h1 className="text-xl font-bold my-4">Login</h1>
+    <div className="grid place-items-center h-screen bg-gray-100">
+      <Card className="p-8 max-w-sm w-full shadow-lg border border-gray-200">
+        <h1 className="text-xl font-bold mb-6">Zaloguj się!</h1>
 
-        <form onSubmit={handleSubmit} className="flex flex-col gap-3">
-          <input
+        <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+          <Input
+            value={email}
             onChange={(e) => setEmail(e.target.value)}
-            type="text"
-            placeholder="Email"
+            type="email"
+            placeholder="E-Mail"
+            required
           />
-          <input
+          <Input
+            value={password}
             onChange={(e) => setPassword(e.target.value)}
             type="password"
-            placeholder="Password"
+            placeholder="Hasło"
+            required
           />
-          <button className="bg-green-600 text-white font-bold cursor-pointer px-6 py-2">
-            Login
-          </button>
+          <Button type="submit" className="bg-blue-600 text-white font-bold py-2">
+            Zaloguj
+          </Button>
           {error && (
-            <div className="bg-red-500 text-white w-fit text-sm py-1 px-3 rounded-md mt-2">
+            <Alert variant="error" className="mt-4">
               {error}
-            </div>
+            </Alert>
           )}
-
-          <Link className="text-sm mt-3 text-right" href={"/register"}>
-            Donu&apos;t have an account? <span className="underline">Register</span>
+          <Link href="/register" className="text-sm mt-3 text-right">
+            Nie masz jeszcze konta? <span className="underline">Zarejestruj się!</span>
           </Link>
         </form>
-      </div>
+      </Card>
     </div>
   );
 }

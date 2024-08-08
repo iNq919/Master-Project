@@ -1,22 +1,60 @@
 "use client";
 
-import React from 'react';
+import React, { useState } from 'react';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
 
 const UrlInput = ({ onFetch }) => {
-  const handleBlur = (e) => {
-    const url = e.target.value;
-    if (url) onFetch(url);
+  const [url, setUrl] = useState('');
+  const [error, setError] = useState('');
+
+  const handleChange = (e) => {
+    setUrl(e.target.value);
+  };
+
+  const handleFetch = () => {
+    const sanitizedUrl = sanitizeUrl(url);
+    if (isValidUrl(sanitizedUrl)) {
+      onFetch(sanitizedUrl);
+      setError('');
+    } else {
+      setError('Invalid URL');
+    }
+  };
+
+  const sanitizeUrl = (input) => {
+    return input.trim().replace(/[^a-zA-Z0-9:/._-]/g, '');
+  };
+
+  // Basic URL validation function
+  const isValidUrl = (input) => {
+    try {
+      new URL(input);
+      return true;
+    } catch {
+      return false;
+    }
   };
 
   return (
-    <div className="p-4 border border-gray-300 rounded-md shadow-md mt-4">
-      <h2 className="text-lg text-white font-semibold mb-2">Fetch Image by URL</h2>
-      <input
-        type="text"
-        placeholder="Enter image URL"
-        onBlur={handleBlur}
-        className="p-2 border border-gray-300 rounded-md w-full"
-      />
+    <div className="flex flex-col sm:flex-row items-center gap-2 pt-4">
+      <div className="flex flex-1 w-full">
+        <Input
+          id="url-input"
+          type="text"
+          placeholder="Adres URL"
+          value={url}
+          onChange={handleChange}
+          className="flex-1"
+        />
+      </div>
+      <Button
+        onClick={handleFetch}
+        className="flex-shrink-0 max-[640px]:w-full h-10 px-4 text-sm font-medium"
+      >
+        Pobierz obraz
+      </Button>
+      {error && <p className="text-red-500 text-sm mt-2">{error}</p>}
     </div>
   );
 };

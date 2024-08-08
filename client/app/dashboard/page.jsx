@@ -149,7 +149,7 @@ export default function Page() {
             )}
 
             {captions.length > 0 && (
-              <div ref={captionsRef} className="flex flex-col items-center justify-center ">
+              <div ref={captionsRef} className="flex flex-col items-center justify-center">
                 <h2 className="text-xl font-bold">Wygenerowane opisy</h2>
                 <Captions 
                   captions={captions} 

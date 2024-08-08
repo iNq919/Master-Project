@@ -11,7 +11,7 @@ const UserInfo = () => {
   return (
     <div className="relative w-full md:flex-wrap flex items-center space-x-4 bg-white rounded-lg">
       <Avatar className="cursor-pointer" aria-label="User Info">
-        <AvatarImage src={session?.user?.image || '/placeholder-user.jpg'} />
+        <AvatarImage src={session?.user?.image} />
         <AvatarFallback>{session?.user?.name?.charAt(0) || 'U'}</AvatarFallback>
       </Avatar>
       <div className="flex-1 text-sm">

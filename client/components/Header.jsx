@@ -1,4 +1,4 @@
-import UserInfo from "@/components/UserInfo"; // Ensure the path is correct
+import UserInfo from "@/components/UserInfo";
 
 const Header = () => {
   return (

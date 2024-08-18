@@ -180,4 +180,4 @@ def request_entity_too_large(error):
 
 
 if __name__ == "__main__":
-    app.run(port=8501, host="0.0.0.0")
+    app.run(debug=False, host="0.0.0.0")

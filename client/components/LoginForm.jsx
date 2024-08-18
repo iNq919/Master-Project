@@ -1,15 +1,14 @@
 "use client";
 
-import Image from "next/image";
 import { useState } from "react";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Card } from "@/components/ui/card";
+import { Button } from "../components/ui/button";
+import { Input } from "../components/ui/input";
+import { Card } from "../components/ui/card";
 import Link from "next/link";
-import { Alert } from "@/components/ui/alert";
-import ReCAPTCHA from "react-google-recaptcha";
+import { Alert } from "../components/ui/alert";
+// import ReCAPTCHA from "react-google-recaptcha";
 
 export default function LoginForm() {
   const [email, setEmail] = useState("");
@@ -22,10 +21,10 @@ export default function LoginForm() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!recaptchaToken) {
-      setError("Please complete the reCAPTCHA.");
-      return;
-    }
+    // if (!recaptchaToken) {
+    //   setError("Please complete the reCAPTCHA.");
+    //   return;
+    // }
 
     try {
       const res = await signIn("credentials", {
@@ -51,7 +50,6 @@ export default function LoginForm() {
 
   return (
     <div className="flex flex-col justify-center items-center gap-y-10 h-screen bg-gray-100">
-      <Image src="/logo.png" alt="Logo" width={350} height={350} className="" />
       <Card className="p-8 max-w-sm w-full shadow-lg border border-gray-200">
         <h1 className="text-xl font-bold mb-6">Zaloguj się!</h1>
 
@@ -71,10 +69,10 @@ export default function LoginForm() {
             required
           />
 
-          <ReCAPTCHA
-            sitekey={process.env.NEXT_PUBLIC_RECAPTCHA_KEY}
+          {/* <ReCAPTCHA
+            sitekey={process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY}
             onChange={handleRecaptchaChange}
-          />
+          /> */}
 
           <Button type="submit" className="bg-blue-600 text-white font-bold py-2">
             Zaloguj

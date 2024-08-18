@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Button } from "@/components/ui/button";
+import { Button } from "../components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { Alert } from "@/components/ui/alert";
@@ -86,12 +86,11 @@ const PasswordStrengthMeter = ({ password }) => {
   );
 };
 
-export default function RegisterForm() {
+export default function RegisterPage() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
-
   const router = useRouter();
 
   const validatePassword = (password) => {
@@ -118,21 +117,6 @@ export default function RegisterForm() {
     }
 
     try {
-      const resUserExists = await fetch("/api/userExists", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ email }),
-      });
-
-      const { user } = await resUserExists.json();
-
-      if (user) {
-        setError("Użytkownik już istnieje.");
-        return;
-      }
-
       const res = await fetch("/api/register", {
         method: "POST",
         headers: {
@@ -146,14 +130,13 @@ export default function RegisterForm() {
       });
 
       if (res.ok) {
-        const form = e.target;
-        form.reset();
-        router.push("/");
+        router.push("/verify"); // Redirect to verification page
       } else {
-        console.log("Rejestracja użytkownika nie powiodła się.");
+        const { message } = await res.json();
+        setError(message);
       }
     } catch (error) {
-      console.log("Błąd podczas rejestracji: ", error);
+      setError("Błąd podczas rejestracji: " + error.message);
     }
   };
 

@@ -179,5 +179,30 @@ def request_entity_too_large(error):
     return jsonify({"status": "error", "message": "File too large"}), 413
 
 
+@app.route("/verify-recaptcha", methods=["POST"])
+def verify_recaptcha():
+    data = request.json
+    recaptcha_token = data.get("recaptchaToken")
+
+    if not recaptcha_token:
+        return jsonify(
+            {"status": "error", "message": "No reCAPTCHA token provided"}
+        ), 400
+
+    secret_key = os.getenv("RECAPTCHA_SECRET_KEY")
+    response = requests.post(
+        "https://www.google.com/recaptcha/api/siteverify",
+        data={"secret": secret_key, "response": recaptcha_token},
+    )
+    result = response.json()
+
+    if result.get("success"):
+        return jsonify({"status": "success"})
+    else:
+        return jsonify(
+            {"status": "error", "message": "reCAPTCHA verification failed"}
+        ), 400
+
+
 if __name__ == "__main__":
-    app.run(debug=False, host="0.0.0.0")
+    app.run(port=8501, host="0.0.0.0")

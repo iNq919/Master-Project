@@ -28,6 +28,21 @@ export default function LoginForm() {
     }
 
     try {
+
+      const verifyResponse = await fetch("/api/verify-recaptcha", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ recaptchaToken }),
+      });
+
+      if (!verifyResponse.ok) {
+        const result = await verifyResponse.json();
+        setError(result.message || "reCAPTCHA verification failed");
+        return;
+      }
+
       const res = await signIn("credentials", {
         email,
         password,
@@ -51,7 +66,7 @@ export default function LoginForm() {
 
   return (
     <div className="flex flex-col justify-center items-center gap-y-10 h-screen bg-gray-100">
-      <Image src="/logo.png" alt="Logo" width={350} height={350} className="" />
+      <Image src="/logo.png" alt="Logo" width={350} height={350} />
       <Card className="p-8 max-w-sm w-full shadow-lg border border-gray-200">
         <h1 className="text-xl font-bold mb-6">Zaloguj się!</h1>
 
@@ -72,7 +87,7 @@ export default function LoginForm() {
           />
 
           <ReCAPTCHA
-            sitekey={process.env.RECAPTCHA_KEY}
+            sitekey={process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY}
             onChange={handleRecaptchaChange}
           />
 

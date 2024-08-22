@@ -12,21 +12,18 @@ import sys
 app = Flask(__name__)
 CORS(app)
 
-# Constants
 UPLOAD_FOLDER = "uploads"
 ALLOWED_EXTENSIONS = {"png", "jpg", "jpeg"}
 MAX_CONTENT_LENGTH = 16 * 1024 * 1024  # 16 MB
 RETRAIN_MODEL_SCRIPT = os.path.join(os.path.dirname(__file__), "retrain_model.py")
 USER_FEEDBACK_FILE = os.path.join(os.path.dirname(__file__), "user_feedback.csv")
 
-# Ensure uploads directory exists
 if not os.path.exists(UPLOAD_FOLDER):
     os.makedirs(UPLOAD_FOLDER)
 
 app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
 app.config["MAX_CONTENT_LENGTH"] = MAX_CONTENT_LENGTH
 
-# Initialize translator
 default_language = "pl"
 translator = Translator(to_lang=default_language)
 
@@ -48,7 +45,12 @@ def save_image(file):
     filename = secure_filename(file.filename)
     file_path = os.path.join(app.config["UPLOAD_FOLDER"], filename)
     file.save(file_path)
-    return filename  # Return the filename, not the full path
+    return filename
+
+
+@app.route("/api", methods=["GET"])
+def health_check():
+    return jsonify({"status": "success", "message": "Server is running!"}), 200
 
 
 @app.route("/upload", methods=["POST"])

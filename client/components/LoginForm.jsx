@@ -8,7 +8,7 @@ import { Input } from "../components/ui/input";
 import { Card } from "../components/ui/card";
 import Link from "next/link";
 import { Alert } from "../components/ui/alert";
-// import ReCAPTCHA from "react-google-recaptcha";
+import ReCAPTCHA from "react-google-recaptcha";
 
 export default function LoginForm() {
   const [email, setEmail] = useState("");
@@ -21,10 +21,10 @@ export default function LoginForm() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // if (!recaptchaToken) {
-    //   setError("Please complete the reCAPTCHA.");
-    //   return;
-    // }
+    if (!recaptchaToken) {
+      setError("Please complete the reCAPTCHA.");
+      return;
+    }
 
     try {
       const res = await signIn("credentials", {
@@ -69,10 +69,10 @@ export default function LoginForm() {
             required
           />
 
-          {/* <ReCAPTCHA
+          <ReCAPTCHA
             sitekey={process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY}
             onChange={handleRecaptchaChange}
-          /> */}
+          />
 
           <Button type="submit" className="bg-blue-600 text-white font-bold py-2">
             Zaloguj

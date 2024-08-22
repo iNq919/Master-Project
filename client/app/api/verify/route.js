@@ -18,7 +18,7 @@ export async function POST(req) {
 
     if (user.verificationCode !== verificationCode) {
       return NextResponse.json(
-        { error: "Invalid verification code." },
+        { error: "Nieprawidłowy kod weryfikacyjny." },
         { status: 400 }
       );
     }
@@ -28,7 +28,7 @@ export async function POST(req) {
     await user.save();
 
     return NextResponse.json(
-      { message: "Email verified successfully." },
+      { message: "Email zweryfikowany pomyślnie." },
       { status: 200 }
     );
   } catch (error) {

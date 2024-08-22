@@ -1,26 +1,40 @@
-// pages/api/verifyRecaptcha.js
-import fetch from "node-fetch";
+import axios from "axios";
 
-export default async function handler(req, res) {
-  const { recaptchaToken } = req.body;
+export async function POST(req) {
+  if (req.method !== "POST") {
+    return new Response(
+      JSON.stringify({ message: "Only POST requests allowed" }),
+      { status: 405 }
+    );
+  }
+
+  const data = await req.json();
+  const { token } = data;
   const secretKey = process.env.RECAPTCHA_SECRET_KEY;
 
-  const response = await fetch(
-    `https://www.google.com/recaptcha/api/siteverify`,
-    {
-      method: "POST",
-      body: new URLSearchParams({
-        secret: secretKey,
-        response: recaptchaToken,
-      }),
+  if (!token) {
+    return new Response(JSON.stringify({ message: "Token not found" }), {
+      status: 405,
+    });
+  }
+
+  try {
+    const response = await axios.post(
+      `https://www.google.com/recaptcha/api/siteverify?secret=${secretKey}&response=${token}`
+    );
+
+    if (response.data.success) {
+      return new Response(JSON.stringify({ message: "Success" }), {
+        status: 200,
+      });
+    } else {
+      return new Response(JSON.stringify({ message: "Failed to verify" }), {
+        status: 405,
+      });
     }
-  );
-
-  const data = await response.json();
-
-  if (data.success) {
-    res.status(200).json({ success: true });
-  } else {
-    res.status(400).json({ error: "reCAPTCHA verification failed." });
+  } catch (error) {
+    return new Response(JSON.stringify({ message: "Internal Server Error" }), {
+      status: 500,
+    });
   }
 }

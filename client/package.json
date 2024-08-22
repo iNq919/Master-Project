@@ -19,6 +19,7 @@
     "clsx": "^2.1.1",
     "eslint": "8.46.0",
     "eslint-config-next": "13.4.12",
+    "express-rate-limit": "^7.4.0",
     "lucide-react": "^0.423.0",
     "mailtrap": "^3.4.0",
     "mongoose": "^7.4.1",

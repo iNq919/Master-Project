@@ -32,20 +32,6 @@ export const authOptions = {
     maxAge: 24 * 60 * 60, // 1 day
     updateAge: 24 * 60 * 60, // 1 day
   },
-  callbacks: {
-    async jwt({ token, user }) {
-      if (user) {
-        token.id = user._id;
-        token.email = user.email;
-        token.name = user.name;
-      }
-      return token;
-    },
-    async session({ session, token }) {
-      session.user = token;
-      return session;
-    },
-  },
   secret: process.env.NEXTAUTH_SECRET,
   pages: {
     signIn: "/",

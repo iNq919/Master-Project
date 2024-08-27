@@ -10,7 +10,18 @@ import subprocess
 import sys
 
 app = Flask(__name__)
-CORS(app)
+
+# Global CORS configuration
+cors = CORS(
+    app,
+    resources={
+        r"/*": {
+            "origins": ["https://master-project-one.vercel.app"],
+            "methods": ["GET", "POST", "OPTIONS"],
+            "allow_headers": ["Content-Type", "Authorization"],
+        }
+    },
+)
 
 UPLOAD_FOLDER = "uploads"
 ALLOWED_EXTENSIONS = {"png", "jpg", "jpeg"}

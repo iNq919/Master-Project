@@ -40,6 +40,7 @@ const FileUpload = ({ onUpload }) => {
         <input
           id="dropzone-file"
           type="file"
+          name="file"
           className="hidden"
           onChange={handleChange}
         />
